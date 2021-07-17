@@ -78,41 +78,36 @@ Bag of Words (BoW) represents each sample in a dataset as a multi-set of its wor
 \section{Support Vector Machines}
 The Support Vector Machine is a supervised learning model designed for binary data classification \cite{boser1992}. It is well known and commonly used for the classification in various fields. In the case of image classification, promising results have been proposed in \cite{dornak2020}.
 
-Let \( T := \{(\boldsymbol{x_1}, y_1),(\boldsymbol{x_2}, y_2),...,(\boldsymbol{x_n}, y_n)\} \),
-be the training dataset, where $n$ is the number of the samples, \( \boldsymbol{x_i} \in \mathbb{R}^m \), \( i \in \{1,2,\dots,n\} \),
-is the sample and \( y_i \in \{-1, 1\} \) is the label related to the sample \( \boldsymbol{x_i} \). The classification model is represented in the form of the hyperplane
-\begin{equation}
-    H: \boldsymbol{\omega}^T\boldsymbol{x}-\widetilde{b}=0,
-    \label{eq:svm:hyperplane}
-\end{equation}
-where \( \boldsymbol{\omega} \in \mathbb{R}^{m} \) is the normalized normal vector of the hyperplane \( H \), and \( \widetilde{b} = \frac{b}{\norm{\boldsymbol{\omega}}} \in \mathbb{R} \) is the bias from the origin.
+Let $T := \{(\boldsymbol{x_1}, y_1),(\boldsymbol{x_2}, y_2),...,(\boldsymbol{x_n}, y_n)\}$,
+be the training dataset, where $n$ is the number of the samples, $\boldsymbol{x_i} \in \mathbb{R}^m$, $i \in \{1,2,\dots,n\}$,
+is the sample and $y_i \in \{-1, 1\}$ is the label related to the sample $\boldsymbol{x_i}$. The classification model is represented in the form of the hyperplane $H: \boldsymbol{\omega}^\top\boldsymbol{x}-\widetilde{b}=0$, where $\boldsymbol{\omega} \in \mathbb{R}^{m}$ is the normalized normal vector of the hyperplane $H$, and $\widetilde{b} = \frac{b}{\norm{\boldsymbol{\omega}}} \in \mathbb{R}$ is the bias from the origin.
 
-By augmenting the vector \(\boldsymbol{\omega}\) and each sample \( \boldsymbol{x_i} \) with an additional auxiliary dimension, so that \( \boldsymbol{\widehat{\omega}} \leftarrow \begin{bmatrix}\boldsymbol{\omega} \\ B \end{bmatrix}\), \(\boldsymbol{\widehat{x}_i} \leftarrow \begin{bmatrix}\boldsymbol{x}_i \\ \beta \end{bmatrix}\), where \(B \in \mathbb{R}\), and \(\beta \in \mathbb{R}^+\) is a user defined variable, the bias \(\widetilde{b}\) is included in the problem. Such approach is well known as the no-bias classification \cite{Aeta2018}.
+By augmenting the vector $\boldsymbol{\omega}$ and each sample $\boldsymbol{x_i}$ with an additional auxiliary dimension, so that $\boldsymbol{\widehat{\omega}} \leftarrow \begin{bmatrix}\boldsymbol{\omega} & B \end{bmatrix}^\top$, $\boldsymbol{\widehat{x}_i} \leftarrow \begin{bmatrix}\boldsymbol{x}_i & \beta \end{bmatrix}^\top$, where $B \in \mathbb{R}$, and $\beta \in \mathbb{R}^+$ is a user defined variable, the bias $\widetilde{b}$ is included in the problem. Such approach is well known as the no-bias classification \cite{Aeta2018}.
 
-The hyperplane \(H: \boldsymbol{\widehat{\omega}}^T\boldsymbol{\widehat{x}}=0\) can be determined using a constrained optimization problem in the primal formulation:
+The hyperplane $H: \boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x}}=0$ can be determined using a constrained optimization problem in the primal formulation:
 \begin{equation}
     \argmin_{\boldsymbol{\widehat{\omega}},\xi_i} \frac{1}{2}\|\boldsymbol{\widehat{\omega}}\| + \frac{C}{p}\sum_{i = 1}^n\xi_i^p ~~\text{ s.t. } ~~
     \begin{cases}
-        y_i(\boldsymbol{\widehat{\omega}}^T\boldsymbol{\widehat{x_i}})\geq1 - \xi_i,\\
+        y_i(\boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x_i}})\geq1 - \xi_i,\\
         \xi_i \geq 0 \text{ if } p=1, i=1, ...,n,
     \end{cases}
     \label{eq:svm:primal}
 \end{equation}
-where \(\xi_i = \max(0, 1-y_i(\boldsymbol{\widehat{\omega}}^T\boldsymbol{\widehat{x_i}}))\) is the hinge loss function, \(C \in \mathbb{R}^+\) is a penalty, that penalizes misclassification error. The appropriate penalty $C$ can be determined using the grid-search technique combined with cross-validation method.
+where $\xi_i = \max(0, 1-y_i(\boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x_i}}))$ is the hinge loss function, $C \in \mathbb{R}^+$ is a penalty, that penalizes misclassification error. The appropriate penalty $C$ can be determined using the grid-search technique combined with cross-validation method.
 
 Exploiting the Lagrange duality and evaluating the Karush-Kuhn-Tucker conditions for \eqref{eq:svm:primal},
 we obtain the $l1$-loss $l2$-regularized SVM formulation
 \begin{equation}
-    \argmin_{\boldsymbol{\lambda}} \ \frac{1}{2} \boldsymbol{\lambda}^T \boldsymbol{H}  \boldsymbol{\lambda} -  \boldsymbol{\lambda}^T \boldsymbol{e} ~~\text{ s.t. }~~ \boldsymbol{o} \leq  \boldsymbol{\lambda} \leq C\boldsymbol{e},
+    \argmin_{\boldsymbol{\lambda}} \ \frac{1}{2} \boldsymbol{\lambda}^\top \boldsymbol{H}  \boldsymbol{\lambda} -  \boldsymbol{\lambda}^\top \boldsymbol{e} ~~\text{ s.t. }~~ \boldsymbol{o} \leq  \boldsymbol{\lambda} \leq C\boldsymbol{e},
     \label{eq:svm:dualL1}
 \end{equation}
 for $p=1$. For $p=2$, we get the $l2$-loss $l2$-regularized SVM formulation
 \begin{equation}
-    \argmin_{\boldsymbol{\lambda}} \ \frac{1}{2} \boldsymbol{\lambda}^T \left(\boldsymbol{H} + C^{-1} \boldsymbol{I} \right) \boldsymbol{\lambda} -  \boldsymbol{\lambda}^T \boldsymbol{e} ~~\text{ s.t. }~~    \boldsymbol{o} \leq  \boldsymbol{\lambda}.
+    \argmin_{\boldsymbol{\lambda}} \ \frac{1}{2} \boldsymbol{\lambda}^\top \left(\boldsymbol{H} + C^{-1} \boldsymbol{I} \right) \boldsymbol{\lambda} -  \boldsymbol{\lambda}^\top \boldsymbol{e} ~~\text{ s.t. }~~    \boldsymbol{o} \leq  \boldsymbol{\lambda}.
     \label{eq:svm:dualL2}
 \end{equation}
 
-In the proposed optimization problems, $\boldsymbol{H} = \boldsymbol{Y}^T \boldsymbol{G} \boldsymbol{Y}$, $\boldsymbol{G} = \boldsymbol{X}^T\boldsymbol{X}$ denotes the Gramian matrix, $\boldsymbol{X}= \begin{bmatrix} \boldsymbol{\widehat{x}}_1 & \dots & \boldsymbol{\widehat{x}}_n \end{bmatrix}$, $\boldsymbol{Y} = diag(\boldsymbol{y})$, $\boldsymbol{y} = \left[y_1, \ y_2, \  \dots, y_n\right]^T$, $\boldsymbol{e} = \left[1, 1, \dots, 1\right]^T \in \mathbb{R}^n$, $\boldsymbol{o} = \left[0, \ 0,  \ \dots, \ 0\right]^T \in \mathbb{R}^n$.
+In the proposed optimization problems, $\boldsymbol{H} = \boldsymbol{Y}^\top \boldsymbol{G} \boldsymbol{Y}$, $\boldsymbol{G} = \boldsymbol{X}^\top\boldsymbol{X}$ denotes the Gramian matrix, $\boldsymbol{X}= \begin{bmatrix} \boldsymbol{\widehat{x}}_1 & \dots & \boldsymbol{\widehat{x}}_n \end{bmatrix}$, $\boldsymbol{Y} = diag(\boldsymbol{y})$, $\boldsymbol{y} = \left[y_1, \ y_2, \  \dots, y_n\right]^\top$, $\boldsymbol{e} = \left[1, 1, \dots, 1\right]^\top \in \mathbb{R}^n$, $\boldsymbol{o} = \left[0, \ 0,  \ \dots, \ 0\right]^\top \in \mathbb{R}^n$.
 
 In the $l2$-loss $l2$-regularized SVM formulation, the Hessian matrix $\boldsymbol{H}$ regularized by the matrix $c^{-1}\boldsymbol{I}$ is symmetric positive definite. In this case, the objective function is strictly convex and the problem \eqref{eq:svm:dualL2} has unique solution \cite{DosBOOK-2009}.
 
@@ -130,7 +125,7 @@ where $\Pi_x^n$ is the $n$-th element of $\Pi_x$, similar to $\Pi_y^n$, and the 
 
 The determination of the optimal $\Delta^{*}$ can be written as
 \begin{equation}
-    \Delta^* = \argmin_{\Delta \in \Omega_{\Delta}} \sum_{t=1}^T \text{dist}(\Pi_{yt}, \Delta\Pi_{xt}),
+    \Delta^* = \argmin_{\Delta \in \Omega_{\Delta}} \sum_{t=1}^{T} \text{dist}(\Pi_{yt}, \Delta\Pi_{xt}),
     \label{eq:Bayes:opt_problem}
 \end{equation}
 where $\Omega_{\Delta}$ is a set of left stochastic matrices. The dist($\Pi_{yt}, \Delta\Pi_{xt}$) is calculated as Kullback-Leiber divergence \cite{Kullback1951}:
@@ -147,7 +142,7 @@ The analytical solution for this problem does not exist. However, $-\ln()$ is a 
 \end{equation}
 From this estimation, we get an approximated optimization problem
 \begin{equation}
-    \Delta^* = \argmin_{\Delta \in \Omega_{\Delta}} - \sum_{t=1}^T \sum_{i=1}^{K_y} \sum_{j=1}^{K_x} [\Pi_{yt}]_i [\Pi_{xt}]_j \ln \Delta_{ij},
+    \Delta^* = \argmin_{\Delta \in \Omega_{\Delta}} - \sum_{t=1}^{T} \sum_{i=1}^{K_y} \sum_{j=1}^{K_x} [\Pi_{yt}]_i [\Pi_{xt}]_j \ln \Delta_{ij},
 \end{equation}
 where $\Omega_{\Delta} = \{ \Delta \in [0, 1]^{K_y,K_x}, \forall j \in \{ 1, 2, \dots, K_x \} : \sum_{i=1}^{K_y} \Delta_{ij} = 1 \}$
 is a feasible set of left stochastic matrices. The problem can be solved analytically, which gives us the optimal $\Delta^*$ with components
@@ -164,7 +159,7 @@ To test our extraction-classification pipeline, we use the Oxford-IIIT Pet Datas
 
 We run the presented experiments on the Salomon supercomputer \cite{Salomon-WWW-17} at IT4Innovations. As the underlying SVM solver, we use PermonSVM \cite{permonSVM}. The Bayesian Model using the Jensen inequality is implemented in Python, while the Bayesian Model solved using the Spectral Projected Gradient method is trained using an Octave code.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \begin{minipage}{.5\textwidth}
         \centering
