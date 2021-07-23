@@ -43,7 +43,7 @@
 \maketitle
 
 \begin{abstract}
-    This paper presents the first results of the Bayesian model in the problem of image and image features classification. The approach is similar to well-known Markov processes and is based on conditional probabilities determined from the given data using the regression process with Kullback-Leibler divergence. In the contribution, we shortly review the complete process consisting of the Scale Invariant Feature Transform technique for the detection of key features, the so-called Bag of Visual Words, and the classification. We compare the new methodology with the standard approach based on Support Vector Machine on a non-trivial benchmark.
+    This paper presents the first results of the Bayesian model in the problem of image classification using feature extraction. The proposed approach is similar to well-known Markov processes and is based on conditional probabilities determined from the given data using the regression process with Kullback-Leibler divergence. In the contribution, we shortly review the complete process consisting of the Scale Invariant Feature Transform technique for the detection of key features, the so-called Bag of Visual Words, and the classification. We compare the new methodology with the standard approach based on Support Vector Machine on a non-trivial benchmark.
 \end{abstract}
 
 \maketitle
@@ -51,36 +51,32 @@
 \section{Introduction}
 In this paper, we introduce the Bayesian model and the Support Vector Machine classification techniques. We experiment with these techniques on classifying photographs of cats and dogs from the Oxford-IIIT Pet Dataset \cite{parkhi12a}, transformed into a space of significant features using the Scale Invariant Feature Transform technique \cite{Lowe2004}.
 
-It has been shown in \cite{dornak2020}, that classifying the transformed data using the Support Vector Machine is viable option. In \cite{dornak2021}, these classification techniques have been explored on multiple different datasets. In this paper, we compare the results of the two classification techniques.
+It has been shown in \cite{dornak2020}, that classifying the transformed data using the Support Vector Machine is a viable option. In \cite{dornak2021}, these classification techniques have been explored on multiple different datasets. In this paper, we compare the results of the two classification techniques.
 
 \section{Scale Invariant Feature Transform}
-Scale Invariant Feature Transform (SIFT) is commonly used local feature extractor, firstly proposed by David Lowe in 2004 \cite{Lowe2004}. It describes an area around a few selected keypoints by the means of a vector called a descriptor. These descriptors are invariant to scale, rotation, illumination and to affine transformations.
+Scale Invariant Feature Transform (SIFT) is a commonly used local feature extractor, firstly proposed by David Lowe in 2004 \cite{Lowe2004}. It describes an area around a few selected key points by the means of a vector called a descriptor. These descriptors are invariant to scale, rotation, illumination and affine transformations.
 
-Let the scale space representation of an image $L(x,y,\sigma)$ be the convolution of the input image with the Gaussian kernel. The scale-invariant keypoints are selected as extrema of the scale normalized Laplacian of Gaussian (LoG):
+Let the scale-space representation of an image $L(x,y,\sigma)$ be the convolution of the input image with the Gaussian kernel. The scale-invariant key points are selected as extrema of the scale normalized Laplacian of Gaussian (LoG):
 \begin{equation}
     \Laplace_{norm} L(x, y, \sigma) = \sigma \left(\frac{\partial^2 L(x,y,\sigma)}{\partial x^2} + \frac{\partial^2 L(x,y,\sigma)}{\partial y^2}\right).
 \end{equation}
 
-As determination of LoG would be time-consuming, it is approximated by Difference of Gaussian (DoG). The DoG is computed by subtracting two adjacent scale space representations of the image.
+Since the determination and the evaluation of LoG is time-consuming, it is approximated by the Difference of Gaussian (DoG). The DoG is computed by subtracting two adjacent scale-space representations of the image, which is performed across different scales, where the scales are constructed by progressively convolving the original image with the Gaussian kernel.
 
-This is performed across different scales, where the scales are constructed by progressively convolving the original image with the Gaussian kernel.
+Each candidate pixel is compared with the 8 surrounding pixels as well as with the 9 pixels in the scale above and the 9 pixels in the scale below. If the candidate pixel intensity is lower or higher than the 26 surrounding pixels, it is selected as a key point. To detect the sub-pixel location of extrema, the DoG is interpolated using a quadratic Taylor expansion at each candidate. The key point is discarded, if the offset from the key point is greater than $0.5$ in any dimension, as this indicates that the extremum is close to a better key point. key points located along edges are also considered poorly located and therefore are discarded.
 
-Each candidate pixel is compared with the 8 surrounding pixels as well as with the 9 pixels in the scale above and the 9 pixels in the scale below. If the candidate pixel intensity is lower or higher than the 26 surrounding pixels, it is selected as a keypoint. To detect sub-pixel location of extrema, the DoG is interpolated using a quadratic Taylor expansion at each candidate. The keypoint is discarded, if the offset from the keypoint is greater than $0.5$ in any dimension, as this indicates that the extremum is close to a better keypoint. Keypoints located along edges are also considered poorly located, and therefore are discarded.
+The key point descriptors for the object must be almost identical across different scales, rotations, illuminations and other transformations. To ensure descriptor invariance to rotation, the key point orientation needs to be determined. It is selected as a dominant gradient magnitude, from an orientation histogram.
 
-The keypoint descriptors for the object must be almost identical across different scales, rotations, illuminations and other transformations. To ensure descriptor invariance to rotation, the keypoint orientation needs to be determined. It is selected as a dominant gradient magnitude, from an orientation histogram.
+The descriptor is constructed from a window of the size $16 \times 16$ pixels around the key point. This window is rotated according to the previously selected orientation of the key point. The window is divided into 16 ($4 \times 4$) sub-windows. In each sub-window, an $8$ bin histogram weighted by the gradient magnitudes is constructed. These histograms form a descriptor vector.
 
-The descriptor is constructed from a window of the size $16 \times 16$ pixels around the keypoint. This window is rotated according to the previously selected orientation of the keypoint. The window is divided into 16 ($4 \times 4$) sub-windows. In each sub-window, an $8$ bin histogram weighted by the gradient magnitudes, is created. These histograms form a descriptor vector.
-
-The SIFT extractor provides us with varied number of descriptors for each image. As we require each image to be represented by a single vector, we apply the Bag of Words technique.
-
-Bag of Words (BoW) represents each sample in a dataset as a multi-set of its words. In our case, the words are a categorization of descriptors from all images. The categorization is done using $k$-means clustering.
+The SIFT extractor provides us with a various number of descriptors for each image. Since we require each image to be represented by a single vector, we apply the Bag of Words technique (BoW). The BoW represents each sample in a dataset as a multi-set of its words. In our case, the words are a categorization of descriptors from all images. The categorization is done using $k$-means clustering.
 
 \section{Support Vector Machines}
-The Support Vector Machine is a supervised learning model designed for binary data classification \cite{boser1992}. It is well known and commonly used for the classification in various fields. In the case of image classification, promising results have been proposed in \cite{dornak2020}.
+The Support Vector Machine is a supervised learning model designed for binary data classification \cite{boser1992}. It is well known and commonly used for classification in various fields. In the case of image classification, promising results have been proposed in \cite{dornak2020}.
 
 Let $T := \{(\boldsymbol{x_1}, y_1),(\boldsymbol{x_2}, y_2),...,(\boldsymbol{x_n}, y_n)\}$,
 be the training dataset, where $n$ is the number of the samples, $\boldsymbol{x_i} \in \mathbb{R}^m$, $i \in \{1,2,\dots,n\}$,
-is the sample and $y_i \in \{-1, 1\}$ is the label related to the sample $\boldsymbol{x_i}$. The classification model is represented in the form of the hyperplane $H: \boldsymbol{\omega}^\top\boldsymbol{x}-\widetilde{b}=0$, where $\boldsymbol{\omega} \in \mathbb{R}^{m}$ is the normalized normal vector of the hyperplane $H$, and $\widetilde{b} = \frac{b}{\norm{\boldsymbol{\omega}}} \in \mathbb{R}$ is the bias from the origin.
+are samples and $y_i \in \{-1, 1\}$ are corresponding sample labels. The classification model is represented in the form of the hyperplane $H: \boldsymbol{\omega}^\top\boldsymbol{x}-\widetilde{b}=0$, where $\boldsymbol{\omega} \in \mathbb{R}^{m}$ is the normalized normal vector of the hyperplane $H$, and $\widetilde{b} = \frac{b}{\norm{\boldsymbol{\omega}}} \in \mathbb{R}$ is the bias from the origin.
 
 By augmenting the vector $\boldsymbol{\omega}$ and each sample $\boldsymbol{x_i}$ with an additional auxiliary dimension, so that $\boldsymbol{\widehat{\omega}} \leftarrow \begin{bmatrix}\boldsymbol{\omega} & B \end{bmatrix}^\top$, $\boldsymbol{\widehat{x}_i} \leftarrow \begin{bmatrix}\boldsymbol{x}_i & \beta \end{bmatrix}^\top$, where $B \in \mathbb{R}$, and $\beta \in \mathbb{R}^+$ is a user defined variable, the bias $\widetilde{b}$ is included in the problem. Such approach is well known as the no-bias classification \cite{Aeta2018}.
 
@@ -112,47 +108,47 @@ In the proposed optimization problems, $\boldsymbol{H} = \boldsymbol{Y}^\top \bo
 In the $l2$-loss $l2$-regularized SVM formulation, the Hessian matrix $\boldsymbol{H}$ regularized by the matrix $c^{-1}\boldsymbol{I}$ is symmetric positive definite. In this case, the objective function is strictly convex and the problem \eqref{eq:svm:dualL2} has unique solution \cite{DosBOOK-2009}.
 
 \section{Bayesian Model}
-This classifier is suitable for classifying data represented by a stochastic vector. The BoW data can be easily transformed into such vector. Instead of each component of the BoW vector representing the number of keypoints in the respective category, the component in our new vector represents the probability of keypoints belonging to the respective category.
 
-Let $x_t \in X \coloneqq \lbrace \mathsf{x}_1, \dots \mathsf{x}_{K_x} \rbrace, t = 1,\dots,T$ be the input variables and let $y_t \in \mathsf{Y} := \lbrace \mathsf{y}_1, \dots, \mathsf{y}_{K_Y} \rbrace$ be output categorical variables.
-Let us denote the stochastic data vector $\Pi_{xt} \in \mathbb{R}^{K_x}, t=1,\dots,T$, where $T$ is the number of samples, $K_x$ is the size of BoW. Let the vector $\Pi_{yt}\in \mathbb{R}^{K_y}$ be a vector of probabilities, with which $\Pi_{xt}$ belongs to each category, and $K_y$ the number of categories.
-
-Given a stochastic data vector $\Pi_x$, we can describe the transformation $\mathbb{R}^{K_x} \rightarrow \mathbb{R}^{K_y}$ using a matrix $\Delta \in \mathbb{R}^{K_y, K_x}$:
+The method is based on law of total probability for two categorical processes. 
+Let $x_t \in X \coloneqq \lbrace \mathsf{x}_1, \dots \mathsf{x}_{K_x} \rbrace, t = 1,\dots,T$ be the input variables and let $y_t \in \mathsf{Y} := \lbrace \mathsf{y}_1, \dots, \mathsf{y}_{K_Y} \rbrace$ be output labels.
+Let $\Pi_{xt}^{K_y}$ be a stochastic vector of relative frequences of word categories $X$ in image $t$ and $\Pi_{yt} \in \mathbb{R}^{K_y}$ be a vector of probabilities of image classification. Then using on the law of total probability, there exists a left stochastic matrix of conditional probabilities $\Lambda \in \mathbb{R}^{K_y,K_x}$ with components
 \begin{equation}
-    \Delta_{ij} = P(y_t = \mathsf{y}_i | x_t = \mathsf{x}_j), i = 0, \dots, K_y, j = 0, \dots, K_x,
+    \Lambda_{ij} = P(y_t = \mathsf{y}_i | x_t = \mathsf{x}_j), i = 1, \dots, K_y, j = 1, \dots, K_x.
 \end{equation}
-where $\Pi_x^n$ is the $n$-th element of $\Pi_x$, similar to $\Pi_y^n$, and the matrix $\Delta$ is a left stochastic matrix.
 
-The determination of the optimal $\Delta^{*}$ can be written as
+%This classifier is suitable for classifying data represented by a stochastic vector. The BoW data can be easily transformed into such vector. Instead of each component of the BoW vector representing the number of key points in the respective category, the component in our new vector represents the probability of key points belonging to the respective category.
+%Let us denote the stochastic data vector $\Pi_{xt} \in \mathbb{R}^{K_x}, t=1,\dots,T$, where $T$ is the number of samples, $K_x$ is the size of BoW. Let the vector $\Pi_{yt}\in \mathbb{R}^{K_y}$ be a vector of probabilities, with which $\Pi_{xt}$ belongs to each category, and $K_y$ the number of categories.
+%Given a stochastic data vector $\Pi_x$, we can describe the transformation $\mathbb{R}^{K_x} \rightarrow \mathbb{R}^{K_y}$ using a matrix $\Lambda \in \mathbb{R}^{K_y, K_x}$:
+%where $\Pi_x^n$ is the $n$-th element of $\Pi_x$, similar to $\Pi_y^n$, and the matrix $\Lambda$ is a left stochastic matrix.
+
+The determination of the optimal $\Lambda^{*}$ can be written as regression problem
 \begin{equation}
-    \Delta^* = \argmin_{\Delta \in \Omega_{\Delta}} \sum_{t=1}^{T} \text{dist}(\Pi_{yt}, \Delta\Pi_{xt}),
+    \Lambda^* = \argmin_{\Lambda \in \Omega_{\Lambda}} \sum_{t=1}^{T} \text{dist}(\Pi_{yt}, \Lambda\Pi_{xt}),
     \label{eq:Bayes:opt_problem}
 \end{equation}
-where $\Omega_{\Delta}$ is a set of left stochastic matrices. The dist($\Pi_{yt}, \Delta\Pi_{xt}$) is calculated as Kullback-Leiber divergence \cite{Kullback1951}:
+where $\Omega_{\Lambda}$ is a feasible set of left stochastic matrices. In our approach, the dist($\Pi_{yt}, \Lambda\Pi_{xt}$) is chosen as Kullback-Leiber divergence \cite{Kullback1951}:
 \begin{equation}
-    \text{dist}(\Pi_{yt}, \Delta\Pi_{xt}) = - \sum_{i=1}^{K_y} \Pi_{yt}^i \ln\frac{[\Delta\Pi_{xt}]_i}{[\Pi_{yt}]_i} = - \sum_{i=1}^{K_y} [\Pi_{yt}]_i (\ln [\Delta\Pi_{xt}]_i - \ln [\Pi_{yt}]_i).
+    \text{dist}(\Pi_{yt}, \Lambda\Pi_{xt}) = - \sum_{i=1}^{K_y} \Pi_{yt}^i \ln\frac{[\Lambda\Pi_{xt}]_i}{[\Pi_{yt}]_i} = - \sum_{i=1}^{K_y} [\Pi_{yt}]_i (\ln [\Lambda\Pi_{xt}]_i - \ln [\Pi_{yt}]_i)
+    \propto - \sum_{i=1}^{K_y} [\Pi_{yt}]_i \ln [\Lambda\Pi_{xt}]_i.
 \end{equation}
-For the optimization, the term $\ln [\Pi_{yt}]_i$ is constant, therefore it can be ignored:
+Since the objective function of \eqref{eq:Bayes:opt_problem} is convex, we can use Jensen's inequality to obtain
 \begin{equation}
-    \text{dist}(\Pi_{yt}, \Delta\Pi_{xt}) \propto - \sum_{i=1}^{K_y} [\Pi_{yt}]_i \ln [\Delta\Pi_{xt}]_i.
+\label{eq:jensen}
+    - \sum_{i=1}^{K_y} [\Pi_{yt}]_i \ln [\Lambda\Pi_{xt}]_i \leq - \sum_{i=1}^{K_y} [\Pi_{yt}]_i ( \sum_{j=1}^{K_x} [\Pi_{xt}]_j \ln (\Lambda_{ij}) ) = - \sum_{i=1}^{K_y} \sum_{j=1}^{K_x} [\Pi_{yt}]_i [\Pi_{xt}]_j \ln \Lambda_{ij}.
 \end{equation}
-The analytical solution for this problem does not exist. However, $-\ln()$ is a convex function and $\Delta\Pi_{xt}$ is a convex combination, thus Jensen's inequality can be used:
+%From this estimation, we get an approximated optimization problem
+%\begin{equation}
+%    \Lambda^* = \argmin_{\Lambda \in \Omega_{\Lambda}} - \sum_{t=1}^{T} \sum_{i=1}^{K_y} \sum_{j=1}^{K_x} [\Pi_{yt}]_i [\Pi_{xt}]_j \ln \Lambda_{ij},
+%\end{equation}
+%where $\Omega_{\Lambda} = \{ \Lambda \in [0, 1]^{K_y,K_x}, \forall j \in \{ 1, 2, \dots, K_x \} : \sum_{i=1}^{K_y} \Lambda_{ij} = 1 \}$
+%is a feasible set of left stochastic matrices. 
+The problem \eqref{eq:Bayes:opt_problem} with objective function \eqref{eq:jensen} has analytical solution, which can be derived using Lagrange multipliers
 \begin{equation}
-    - \sum_{i=1}^{K_y} [\Pi_{yt}]_i \ln [\Delta\Pi_{xt}]_i \leq - \sum_{i=1}^{K_y} [\Pi_{yt}]_i ( \sum_{j=1}^{K_x} [\Pi_{xt}]_j \ln (\Delta_{ij}) ) = - \sum_{i=1}^{K_y} \sum_{j=1}^{K_x} [\Pi_{yt}]_i [\Pi_{xt}]_j \ln \Delta_{ij}.
+\label{eq:Lambda_est}
+    \Lambda_{\hat{i}\hat{j}}^{*} = \frac{\sum_{t=1}^{T} [\Pi_{yt}]_{\hat{i}} [\Pi_{xt}]_{\hat{j}}}{\sum_{i=1}^{K_y} \sum_{t=1}^{T} [\Pi_{yt}]_{i} [\Pi_{xt}]_{\hat{j}},}.
 \end{equation}
-From this estimation, we get an approximated optimization problem
-\begin{equation}
-    \Delta^* = \argmin_{\Delta \in \Omega_{\Delta}} - \sum_{t=1}^{T} \sum_{i=1}^{K_y} \sum_{j=1}^{K_x} [\Pi_{yt}]_i [\Pi_{xt}]_j \ln \Delta_{ij},
-\end{equation}
-where $\Omega_{\Delta} = \{ \Delta \in [0, 1]^{K_y,K_x}, \forall j \in \{ 1, 2, \dots, K_x \} : \sum_{i=1}^{K_y} \Delta_{ij} = 1 \}$
-is a feasible set of left stochastic matrices. The problem can be solved analytically, which gives us the optimal $\Delta^*$ with components
-\begin{equation}
-    \Delta_{\hat{i}\hat{j}}^{*} = \frac{\sum_{t=1}^{T} [\Pi_{yt}]_{\hat{i}} [\Pi_{xt}]_{\hat{j}}}{\sum_{i=1}^{K_y} \sum_{t=1}^{T} [\Pi_{yt}]_{i} [\Pi_{xt}]_{\hat{j}},}.
-\end{equation}
-
-Another approach to finding the optimal $\Delta^{*}$ is optimizing \eqref{eq:Bayes:opt_problem} without using the Jensen inequality. Since the feasible set $\Omega_{\Delta}$ is a closed convex set, the problem can be solved numerically using the Spectral Projected Gradient method \cite{birgin2000}.
-
-We compare both approaches (the analytical solution using Jensen inequality and the numerical solution) in our experiments.
+Please notice the similarity of obtained formula with the estimation of Markov chain transitional matrix estimated by Matimum Likelihood Principle \cite{NorBOOK-1998}.
+In this paper, we compare solution \eqref{eq:Lambda_est} with numerical solution of original problem \eqref{eq:Bayes:opt_problem} without using the Jensen's inequality. Since the feasible set $\Omega_{\Lambda}$ is a closed convex set and we can easily derive the derivatives of objective function, the problem can be solved numerically using the Spectral Projected Gradient method \cite{birgin2000}. We compare both approaches in our experiments.
 
 \section{Benchmark Results}
 To test our extraction-classification pipeline, we use the Oxford-IIIT Pet Dataset \cite{parkhi12a}. The dataset contains over $7,000$ photographs of different cat and dog breeds. The dataset provides a trimap for each photograph, allowing us to cut out the animal from the background. This allows us to concentrate only on classifying the data relevant to the animal. We assign $90\%$ of the data to the training subset and $10\%$ to the testing subset.
@@ -175,9 +171,10 @@ We run the presented experiments on the Salomon supercomputer \cite{Salomon-WWW-
 
 From the graphs \figref{fig:results:graph} we can observe that for the lower BoW sizes both versions of the Bayes classifier perform better in regards to accuracy and the duration of training. However, with the larger BoW sizes, both the $l1$-loss and the $l2$-loss regularized SVM performs similarly to the Bayes classifier.
 
-\section{Conclusion and Acknowledgement}
+\section{Conclusion}
 In our contribution, we presented the Bayesian model in image classification and demonstrated the efficiency of this novel approach on the standard non-trivial benchmark. Our first results indicate better performance than commonly used SVM. Additionally, our method can be easily extended to the classification of images into more classes, whereas the SVM approach can be directly used only for binary classification. However, this feature as well as the comparison to other commonly used techniques (such as Neural Networks) would provide a better understanding of the efficiency of this promising method. This will be the aim of our further research.
 
+\section{Acknowledgement}
 This contribution has been completed thanks to the financial support provided to VSB-Technical University of Ostrava by the Czech Ministry of Education, Youth and Sports from the budget for conceptual development of science, research and innovations for the 2021 year.
 
 \bibliographystyle{aipnum-cp}
