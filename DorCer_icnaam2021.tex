@@ -43,7 +43,7 @@
 \maketitle
 
 \begin{abstract}
-    This paper presents the first results of the Bayesian model in the problem of image classification using feature extraction. The proposed approach is similar to well-known Markov processes and is based on conditional probabilities determined from the given data using the regression process with Kullback-Leibler divergence. In the contribution, we shortly review the complete process consisting of the Scale Invariant Feature Transform technique for the detection of key features, the so-called Bag of Visual Words, and the classification. We compare the new methodology with the standard approach based on Support Vector Machine on a non-trivial benchmark.
+    This paper presents the first results of the Bayesian model in the problem of image classification using feature extraction. The proposed approach is similar to the well-known Markov processes and is based on conditional probabilities determined from the given data using the regression process with Kullback-Leibler divergence. In the contribution, we shortly review the complete process consisting of the Scale Invariant Feature Transform technique for the detection of key features, Bag of Visual Words, and classification. We compare the new methodology with the standard approach based on Support Vector Machine on a non-trivial benchmark containing real photographs of cats and dogs.
 \end{abstract}
 
 \maketitle
@@ -51,7 +51,7 @@
 \section{Introduction}
 In this paper, we introduce the Bayesian model and the Support Vector Machine classification techniques. We experiment with these techniques on classifying photographs of cats and dogs from the Oxford-IIIT Pet Dataset \cite{parkhi12a}, transformed into a space of significant features using the Scale Invariant Feature Transform technique \cite{Lowe2004}.
 
-It has been shown in \cite{dornak2020}, that classifying the transformed data using the Support Vector Machine is a viable option. In \cite{dornak2021}, these classification techniques have been explored on multiple different datasets. In this paper, we compare the results of the two classification techniques.
+It has been shown in \cite{dornak2020}, that classifying the transformed data using the Support Vector Machine is a viable option. In \cite{dornak2021}, these classification techniques have been explored on multiple different datasets. In this paper, we compare the results of the two classification techniques mentioned above.
 
 \section{Scale Invariant Feature Transform}
 Scale Invariant Feature Transform (SIFT) is a commonly used local feature extractor, firstly proposed by David Lowe in 2004 \cite{Lowe2004}. It describes an area around a few selected key points by the means of a vector called a descriptor. These descriptors are invariant to scale, rotation, illumination and affine transformations.
@@ -67,7 +67,7 @@ Each candidate pixel is compared with the 8 surrounding pixels as well as with t
 
 The key point descriptors for the object must be almost identical across different scales, rotations, illuminations and other transformations. To ensure descriptor invariance to rotation, the key point orientation needs to be determined. It is selected as a dominant gradient magnitude, from an orientation histogram.
 
-The descriptor is constructed from a window of the size $16 \times 16$ pixels around the key point. This window is rotated according to the previously selected orientation of the key point. The window is divided into 16 ($4 \times 4$) sub-windows. In each sub-window, an $8$ bin histogram weighted by the gradient magnitudes is constructed. These histograms form a descriptor vector.
+The descriptor is constructed from a window of a size $16 \times 16$ pixels around the key point. This window is rotated according to the previously selected orientation of the key point. The window is divided into 16 ($4 \times 4$) sub-windows. In each sub-window, an $8$ bin histogram weighted by the gradient magnitudes is constructed. These histograms form a descriptor vector.
 
 The SIFT extractor provides us with a various number of descriptors for each image. Since we require each image to be represented by a single vector, we apply the Bag of Words technique (BoW). The BoW represents each sample in a dataset as a multi-set of its words. In our case, the words are a categorization of descriptors from all images. The categorization is done using $k$-means clustering.
 
@@ -78,11 +78,11 @@ Let $T := \{(\boldsymbol{x_1}, y_1),(\boldsymbol{x_2}, y_2),...,(\boldsymbol{x_n
 be the training dataset, where $n$ is the number of the samples, $\boldsymbol{x_i} \in \mathbb{R}^m$, $i \in \{1,2,\dots,n\}$,
 are samples and $y_i \in \{-1, 1\}$ are corresponding sample labels. The classification model is represented in the form of the hyperplane $H: \boldsymbol{\omega}^\top\boldsymbol{x}-\widetilde{b}=0$, where $\boldsymbol{\omega} \in \mathbb{R}^{m}$ is the normalized normal vector of the hyperplane $H$, and $\widetilde{b} = \frac{b}{\norm{\boldsymbol{\omega}}} \in \mathbb{R}$ is the bias from the origin.
 
-By augmenting the vector $\boldsymbol{\omega}$ and each sample $\boldsymbol{x_i}$ with an additional auxiliary dimension, so that $\boldsymbol{\widehat{\omega}} \leftarrow \begin{bmatrix}\boldsymbol{\omega} & B \end{bmatrix}^\top$, $\boldsymbol{\widehat{x}_i} \leftarrow \begin{bmatrix}\boldsymbol{x}_i & \beta \end{bmatrix}^\top$, where $B \in \mathbb{R}$, and $\beta \in \mathbb{R}^+$ is a user defined variable, the bias $\widetilde{b}$ is included in the problem. Such approach is well known as the no-bias classification \cite{Aeta2018}.
+By augmenting the vector $\boldsymbol{\omega}$ and each sample $\boldsymbol{x_i}$ with an additional auxiliary dimension, so that $\boldsymbol{\widehat{\omega}} \leftarrow \begin{bmatrix}\boldsymbol{\omega} & B \end{bmatrix}^\top$, $\boldsymbol{\widehat{x}_i} \leftarrow \begin{bmatrix}\boldsymbol{x}_i & \beta \end{bmatrix}^\top$, where $B \in \mathbb{R}$, and $\beta \in \mathbb{R}^+$ is a user defined variable, the relaxed bias $\widetilde{b}$ is included in the problem. Such approach is well known as the no-bias classification \cite{Aeta2018}.
 
 The hyperplane $H: \boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x}}=0$ can be determined using a constrained optimization problem in the primal formulation:
 \begin{equation}
-    \argmin_{\boldsymbol{\widehat{\omega}},\xi_i} \frac{1}{2}\|\boldsymbol{\widehat{\omega}}\| + \frac{C}{p}\sum_{i = 1}^n\xi_i^p ~~\text{ s.t. } ~~
+    \argmin_{\boldsymbol{\widehat{\omega}},\xi_i} \frac{1}{2}\|\boldsymbol{\widehat{\omega}}\|^2 + \frac{C}{p}\sum_{i = 1}^n\xi_i^p ~~\text{ s.t. } ~~
     \begin{cases}
         y_i(\boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x_i}})\geq1 - \xi_i,\\
         \xi_i \geq 0 \text{ if } p=1, i=1, ...,n,
@@ -92,12 +92,12 @@ The hyperplane $H: \boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x}}=0$
 where $\xi_i = \max(0, 1-y_i(\boldsymbol{\widehat{\omega}}^\top\boldsymbol{\widehat{x_i}}))$ is the hinge loss function, $C \in \mathbb{R}^+$ is a penalty, that penalizes misclassification error. The appropriate penalty $C$ can be determined using the grid-search technique combined with cross-validation method.
 
 Exploiting the Lagrange duality and evaluating the Karush-Kuhn-Tucker conditions for \eqref{eq:svm:primal},
-we obtain the $l1$-loss $l2$-regularized SVM formulation
+we obtain the $l1$-loss $l2$-regularized SVM formulation:
 \begin{equation}
     \argmin_{\boldsymbol{\lambda}} \ \frac{1}{2} \boldsymbol{\lambda}^\top \boldsymbol{H}  \boldsymbol{\lambda} -  \boldsymbol{\lambda}^\top \boldsymbol{e} ~~\text{ s.t. }~~ \boldsymbol{o} \leq  \boldsymbol{\lambda} \leq C\boldsymbol{e},
     \label{eq:svm:dualL1}
 \end{equation}
-for $p=1$. For $p=2$, we get the $l2$-loss $l2$-regularized SVM formulation
+for $p=1$. For $p=2$, we get the $l2$-loss $l2$-regularized SVM formulation:
 \begin{equation}
     \argmin_{\boldsymbol{\lambda}} \ \frac{1}{2} \boldsymbol{\lambda}^\top \left(\boldsymbol{H} + C^{-1} \boldsymbol{I} \right) \boldsymbol{\lambda} -  \boldsymbol{\lambda}^\top \boldsymbol{e} ~~\text{ s.t. }~~    \boldsymbol{o} \leq  \boldsymbol{\lambda}.
     \label{eq:svm:dualL2}
@@ -105,7 +105,7 @@ for $p=1$. For $p=2$, we get the $l2$-loss $l2$-regularized SVM formulation
 
 In the proposed optimization problems, $\boldsymbol{H} = \boldsymbol{Y}^\top \boldsymbol{G} \boldsymbol{Y}$, $\boldsymbol{G} = \boldsymbol{X}^\top\boldsymbol{X}$ denotes the Gramian matrix, $\boldsymbol{X}= \begin{bmatrix} \boldsymbol{\widehat{x}}_1 & \dots & \boldsymbol{\widehat{x}}_n \end{bmatrix}$, $\boldsymbol{Y} = diag(\boldsymbol{y})$, $\boldsymbol{y} = \left[y_1, \ y_2, \  \dots, y_n\right]^\top$, $\boldsymbol{e} = \left[1, 1, \dots, 1\right]^\top \in \mathbb{R}^n$, $\boldsymbol{o} = \left[0, \ 0,  \ \dots, \ 0\right]^\top \in \mathbb{R}^n$.
 
-In the $l2$-loss $l2$-regularized SVM formulation, the Hessian matrix $\boldsymbol{H}$ regularized by the matrix $c^{-1}\boldsymbol{I}$ is symmetric positive definite. In this case, the objective function is strictly convex and the problem \eqref{eq:svm:dualL2} has unique solution \cite{DosBOOK-2009}.
+In the $l2$-loss $l2$-regularized SVM formulation, the Hessian matrix $\boldsymbol{H}$ regularized by the matrix $C^{-1}\boldsymbol{I}$ is symmetric positive definite. In this case, the objective function is strictly convex and the problem \eqref{eq:svm:dualL2} has unique solution \cite{DosBOOK-2009}.
 
 \section{Bayesian Model}
 
@@ -147,7 +147,7 @@ The problem \eqref{eq:Bayes:opt_problem} with objective function \eqref{eq:jense
 \label{eq:Lambda_est}
     \Lambda_{\hat{i}\hat{j}}^{*} = \frac{\sum_{t=1}^{T} [\Pi_{yt}]_{\hat{i}} [\Pi_{xt}]_{\hat{j}}}{\sum_{i=1}^{K_y} \sum_{t=1}^{T} [\Pi_{yt}]_{i} [\Pi_{xt}]_{\hat{j}},}.
 \end{equation}
-Please notice the similarity of obtained formula with the estimation of Markov chain transitional matrix estimated by Matimum Likelihood Principle \cite{NorBOOK-1998}.
+Please notice the similarity of obtained formula with the estimation of the Markov chain transitional matrix estimated by Matimum Likelihood Principle \cite{NorBOOK-1998}.
 In this paper, we compare solution \eqref{eq:Lambda_est} with numerical solution of original problem \eqref{eq:Bayes:opt_problem} without using the Jensen's inequality. Since the feasible set $\Omega_{\Lambda}$ is a closed convex set and we can easily derive the derivatives of objective function, the problem can be solved numerically using the Spectral Projected Gradient method \cite{birgin2000}. We compare both approaches in our experiments.
 
 \section{Benchmark Results}
@@ -169,7 +169,7 @@ We run the presented experiments on the Salomon supercomputer \cite{Salomon-WWW-
     \label{fig:results:graph}
 \end{figure}
 
-From the graphs \figref{fig:results:graph} we can observe that for the lower BoW sizes both versions of the Bayes classifier perform better in regards to accuracy and the duration of training. However, with the larger BoW sizes, both the $l1$-loss and the $l2$-loss regularized SVM performs similarly to the Bayes classifier.
+From the graphs in \figref{fig:results:graph}, we can observe that for the lower BoW sizes both versions of the Bayes classifier perform better in regards to accuracy and the duration of training. However, with the larger BoW sizes, both the $l1$-loss and the $l2$-loss regularized SVM performs similarly to the Bayes classifier.
 
 \section{Conclusion}
 In our contribution, we presented the Bayesian model in image classification and demonstrated the efficiency of this novel approach on the standard non-trivial benchmark. Our first results indicate better performance than commonly used SVM. Additionally, our method can be easily extended to the classification of images into more classes, whereas the SVM approach can be directly used only for binary classification. However, this feature as well as the comparison to other commonly used techniques (such as Neural Networks) would provide a better understanding of the efficiency of this promising method. This will be the aim of our further research.
